@@ -60,7 +60,20 @@ public class ThePilgrim extends JFrame {
                     c[begin][new Integer(st.nextToken())] = new Integer(st.nextToken());
             }
         }
+        sc.close();
         return c;
+    }
+
+    /**
+     * Запись результата в файл
+     * @param file файл
+     * @param res записываемая строка
+     * @throws IOException
+     */
+    private void writeResult(File file, String res) throws IOException {
+        BufferedWriter bw = new BufferedWriter(new FileWriter(file,true));
+        bw.write(res);
+        bw.close();
     }
 
     /**
@@ -187,6 +200,11 @@ public class ThePilgrim extends JFrame {
                 maxThread = new EdmondsKarp(c).edmondsKarp();
             }
             maxThreadLabel= new JLabel("Максимальный поток = " + maxThread);
+            try {
+                writeResult(new File("src/main/resources/res.txt"),"Максимальный поток = " + maxThread +'\n');
+            } catch (IOException e1) {
+                e1.printStackTrace();
+            }
             maxThreadLabel.setAlignmentX(CENTER_ALIGNMENT);
             contentPane.add(maxThreadLabel);
             repaint();

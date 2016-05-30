@@ -8,7 +8,7 @@ public class Dinic {
     private int N;
     // функция пропускной способности и функция нагрузки
     private int[][] c, f;
-
+    // кратчайшие пути от исток и очередь
     private int[] d, q;
 
     public Dinic(int[][] c){

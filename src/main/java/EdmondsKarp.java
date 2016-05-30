@@ -9,6 +9,7 @@ public class EdmondsKarp{
     // функция пропускной способности и функция нагрузки
     private int[][] c, f;
 
+    // кратчайший s-t путь и очередь
     private int[] path, q;
 
 
