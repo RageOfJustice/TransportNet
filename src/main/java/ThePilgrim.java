@@ -45,7 +45,7 @@ public class ThePilgrim extends JFrame {
      * @return функция пропускной способности
      * @throws FileNotFoundException
      */
-    private int[][] readGraph(File file) throws FileNotFoundException {
+    public static int[][] readGraph(File file) throws FileNotFoundException {
         int[][] c;
         int size;
         Scanner sc = new Scanner(file);

@@ -1,5 +1,8 @@
 import static java.lang.Integer.min;
 
+/**
+ * Класс для работы с ТС по алгортиму Едмондса-Карпа
+ */
 public class EdmondsKarp{
     // число вершин
     private int N;
