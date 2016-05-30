@@ -4,7 +4,6 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.*;
-import java.nio.CharBuffer;
 import java.util.Scanner;
 import java.util.StringTokenizer;
 
@@ -13,11 +12,9 @@ public class ThePilgrim extends JFrame {
     private JMenuBar mainMenu = new JMenuBar();
 
     private JMenu file = new JMenu("Файл");
-    private JMenu openGraphFromFile = new JMenu("Граф");
 
+    private JMenuItem openGraphFromFile = new JMenuItem("Загрузить граф");
     private JMenuItem exit = new JMenuItem("Выход");
-    private JMenuItem matrixGraph = new JMenuItem("По матрице смежности");
-    private JMenuItem listGraph = new JMenuItem("По списку смежности");
 
     private JPanel contentPane;
 
@@ -25,56 +22,44 @@ public class ThePilgrim extends JFrame {
 
     private JTextArea graphView= new JTextArea();
 
-    private JComboBox<String> algorithmBox = new JComboBox<String>();
+    private JComboBox<String> algorithmBox = new JComboBox<>();
 
     private JButton findMaxNet = new JButton("Найти");
 
-    private String algorithm;
-
     private int [][]c;
 
-    private File graphFile;
     /**
      * Считывает граф из файла
-     * Формат файла для матриц:
+     * Формат файла
      * N
-     * a11 a12 .. a1n
-     * ..............
-     * an1 an2 .. ann
-     * где a - веса
-     * Формат файла для векторов:
-     * N
-     * a b c b c
+     * a bi ci
      * .........
-     * an b c b c
-     * a - вершина исток
-     * b - вершина сток
+     * an bi ci
+     * нумерация вершин с 0
+     * i = {0,..,N}
+     * a - вершина начало ребра
+     * b - вершина конец ребра
      * с - вес или функция пропускной способности
      * все переменные разные
      * @param file файл с графом .txt
-     * @return функцию пропускной способности
+     * @return функция пропускной способности
      * @throws FileNotFoundException
      */
     private int[][] readGraph(File file) throws FileNotFoundException {
-        int [][]c;
+        int[][] c;
         int size;
         Scanner sc = new Scanner(file);
         size = new Integer(sc.next());
-        c= new int[size][size];
-        if(algorithm.equals("matrix"))
-        for(int i=0;i<size;++i)
-            for (int j = 0; j < size; j++)
-                c[i][j]=new Integer(sc.next());
-        else if (algorithm.equals("list"))
-            while (sc.hasNext()) {
-                String line =sc.nextLine();
-                if(!line.isEmpty()) {
-                    StringTokenizer st = new StringTokenizer(line);
-                    int begin = new Integer(st.nextToken());
-                    while (st.hasMoreTokens())
-                        c[begin][new Integer(st.nextToken())] = new Integer(st.nextToken());
-                }
+        c = new int[size][size];
+        while (sc.hasNext()) {
+            String line = sc.nextLine();
+            if (!line.isEmpty()) {
+                StringTokenizer st = new StringTokenizer(line);
+                int begin = new Integer(st.nextToken());
+                while (st.hasMoreTokens())
+                    c[begin][new Integer(st.nextToken())] = new Integer(st.nextToken());
             }
+        }
         return c;
     }
 
@@ -92,8 +77,7 @@ public class ThePilgrim extends JFrame {
             if (ret == JFileChooser.APPROVE_OPTION) {
                 if(maxThreadLabel!=null)
                     contentPane.remove(maxThreadLabel);
-                graphFile = chooseFile.getSelectedFile();
-                algorithm = e.getActionCommand();
+                File graphFile = chooseFile.getSelectedFile();
                 try {
                     graphView.setText(readFile(graphFile));
                     c = readGraph(graphFile);
@@ -168,23 +152,10 @@ public class ThePilgrim extends JFrame {
         file.add(exit);
 
         // кнопка выхода
-        exit.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                System.exit(0);
-            }
-        });
-
-        // граф по матрице смежности
-        matrixGraph.setActionCommand("matrix");
-        matrixGraph.addActionListener(new FileChooserListener());
-
-        // граф по списку смежности
-        listGraph.setActionCommand("list");
-        listGraph.addActionListener(new FileChooserListener());
+        exit.addActionListener(e -> System.exit(0));
 
         // открытие графа из файла
-        openGraphFromFile.add(matrixGraph);
-        openGraphFromFile.add(listGraph);
+        openGraphFromFile.addActionListener(new FileChooserListener());
 
         // панель с контентом
         JPanel buttons = getPanel(20,true,algorithmBox,findMaxNet);
@@ -205,32 +176,26 @@ public class ThePilgrim extends JFrame {
 
         // кнопка выполнить
         findMaxNet.setMaximumSize(new Dimension(100,25));
-        findMaxNet.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                if(maxThreadLabel!=null)
-                    contentPane.remove(maxThreadLabel);
-                int maxThread=0;
-                if(algorithmBox.getSelectedItem().equals("Диниц")){
-                    maxThread = new Dinic(c).dinic();
-                }
-                else if(algorithmBox.getSelectedItem().equals("Эдмондс-Карп")){
-                    maxThread = new EdmondsKarp(c).edmondsKarp();
-                }
-                maxThreadLabel= new JLabel("Максимальный поток = " + maxThread);
-                maxThreadLabel.setAlignmentX(CENTER_ALIGNMENT);
-                contentPane.add(maxThreadLabel);
-                repaint();
-                revalidate();
+        findMaxNet.addActionListener(e -> {
+            if(maxThreadLabel!=null)
+                contentPane.remove(maxThreadLabel);
+            int maxThread=0;
+            if(algorithmBox.getSelectedItem().equals("Диниц")){
+                maxThread = new Dinic(c).dinic();
             }
+            else if(algorithmBox.getSelectedItem().equals("Эдмондс-Карп")){
+                maxThread = new EdmondsKarp(c).edmondsKarp();
+            }
+            maxThreadLabel= new JLabel("Максимальный поток = " + maxThread);
+            maxThreadLabel.setAlignmentX(CENTER_ALIGNMENT);
+            contentPane.add(maxThreadLabel);
+            repaint();
+            revalidate();
         });
 
     }
 
     public static void main(String args[]){
-        EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                new ThePilgrim();
-            }
-        });
+        EventQueue.invokeLater(ThePilgrim::new);
     }
 }

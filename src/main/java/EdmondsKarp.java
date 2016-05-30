@@ -1,8 +1,5 @@
 import static java.lang.Integer.min;
 
-/**
- * Created by Doom on 29.05.2016.
- */
 public class EdmondsKarp{
     // число вершин
     private int N;
